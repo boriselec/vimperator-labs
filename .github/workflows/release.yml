@@ -1,0 +1,36 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Extract version from Makefile
+        id: extract_version
+        run: |
+          VERSION=$(make -f Makefile -n -p | grep '^VERSION' | head -1 | awk '{print $3}')
+          echo "VERSION=$VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Run Makefile release target
+        run: make xpi
+
+      - name: Create or Update GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.version }}
+          release_name: Release v${{ env.version }}
+          body: |
+            Automated release for commit ${{ github.sha }}.
+          draft: false
+          prerelease: false
