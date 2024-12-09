@@ -75,13 +75,10 @@ const StatusLine = Module("statusline", {
         // initialize setVisibility static variables
         this.setVisibility(-1);
         // In case of insecure login forms, connection icon is updated after page load.
-        const VERSION = Services.appinfo.platformVersion;
-        if (services.get("vc").compare(VERSION, "51") >= 0) {
-            config.browser.addEventListener("InsecureLoginFormsStateChange",
-                                      function () {
-                                          statusline.updateField('ssl', null);
-                                      });
-        }
+        config.browser.addEventListener("InsecureLoginFormsStateChange",
+                                  function () {
+                                      statusline.updateField('ssl', null);
+                                  });
     },
 
     /**
@@ -249,67 +246,30 @@ const StatusLine = Module("statusline", {
             });
         statusline.addField("ssl", "The currently SSL status", "liberator-status-ssl",
             function updateSSLState (node, state) {
-                const VERSION = Services.appinfo.platformVersion;
-                if (services.get("vc").compare(VERSION, "51") >= 0) {
-                    conn_icon = document.getElementById("connection-icon");
-                    node.style.listStyleImage = window.getComputedStyle(conn_icon).getPropertyValue("list-style-image");
-                    if (node.style.listStyleImage === "none")
-                        node.style.listStyleImage = "url(chrome://browser/skin/identity-icon.svg#normal)";
+                conn_icon = document.getElementById("connection-icon");
+                node.style.listStyleImage = window.getComputedStyle(conn_icon).getPropertyValue("list-style-image");
+                if (node.style.listStyleImage === "none")
+                    node.style.listStyleImage = "url(chrome://browser/skin/identity-icon.svg#normal)";
 
-                    // Get color of bottombar set by ":highlight Normal background: …" as rgb() string
-                    let bbBackgroundColorRGB = window.getComputedStyle(document.getElementById("liberator-bottombar").firstChild).getPropertyValue("background-color");
-                    // Split string into RGB array
-                    let bbBackgroundColor = bbBackgroundColorRGB.substring(4, bbBackgroundColorRGB.length-1).replace(/ /g, '').split(',');
-                    // Calculate (standard) luminance
-                    let bbBackgroundLuminance = 0.2126*bbBackgroundColor[0] + 0.7152*bbBackgroundColor[1] + 0.0722*bbBackgroundColor[2];
-                    // Arbitrary threshold to switch to white-on-black icon
-                    let iconcolor = bbBackgroundLuminance < 128 ? "white" : "black";
-                    node.style.listStyleImage = node.style.listStyleImage.replace(/(#[\w-]+)(-white|-black)|(#[\w-]+)/, "$1$3-" + iconcolor);
+                // Get color of bottombar set by ":highlight Normal background: …" as rgb() string
+                let bbBackgroundColorRGB = window.getComputedStyle(document.getElementById("liberator-bottombar").firstChild).getPropertyValue("background-color");
+                // Split string into RGB array
+                let bbBackgroundColor = bbBackgroundColorRGB.substring(4, bbBackgroundColorRGB.length-1).replace(/ /g, '').split(',');
+                // Calculate (standard) luminance
+                let bbBackgroundLuminance = 0.2126*bbBackgroundColor[0] + 0.7152*bbBackgroundColor[1] + 0.0722*bbBackgroundColor[2];
+                // Arbitrary threshold to switch to white-on-black icon
+                let iconcolor = bbBackgroundLuminance < 128 ? "white" : "black";
+                node.style.listStyleImage = node.style.listStyleImage.replace(/(#[\w-]+)(-white|-black)|(#[\w-]+)/, "$1$3-" + iconcolor);
 
-                    if (services.get("vc").compare(VERSION, "56") >= 0) {
-                        node.style.fill = window.getComputedStyle(document.getElementById("liberator-status")).getPropertyValue("color");
-                    }
+                node.style.fill = window.getComputedStyle(document.getElementById("liberator-status")).getPropertyValue("color");
 
-                    node.style.visibility = "visible";
+                node.style.visibility = "visible";
 
-                    var tooltip = conn_icon.tooltipText;
-                    if (tooltip)
-                        node.setAttribute("tooltiptext", tooltip);
-                    else
-                        node.removeAttribute("tooltiptext");
-                } else {
-                    var className = "notSecure";
-                    var tooltip = gNavigatorBundle.getString("identity.unknown.tooltip");
-                    if (!state) {
-                        let securityUI = config.tabbrowser.securityUI;
-                        if (securityUI)
-                            state = securityUI.state || 0;
-                    }
-                    const WPL = Components.interfaces.nsIWebProgressListener;
-                    if (state & WPL.STATE_IDENTITY_EV_TOPLEVEL) {
-                        className = "verifiedIdentity";
-                        if (state & WPL.STATE_BLOCKED_MIXED_ACTIVE_CONTENT)
-                            className = "mixedActiveBlocked";
-                        tooltip = gNavigatorBundle.getFormattedString(
-                            "identity.identified.verifier",
-                            [gIdentityHandler.getIdentityData().caOrg]);
-                    } else if (state & WPL.STATE_IS_SECURE) {
-                        className = "verifiedDomain";
-                        if (state & WPL.STATE_BLOCKED_MIXED_ACTIVE_CONTENT)
-                            className = "mixedActiveBlocked";
-                        tooltip = gNavigatorBundle.getFormattedString(
-                            "identity.identified.verifier",
-                            [gIdentityHandler.getIdentityData().caOrg]);
-                    } else if (state & WPL.STATE_IS_BROKEN) {
-                        if (state & WPL.STATE_LOADED_MIXED_ACTIVE_CONTENT)
-                            className = "mixedActiveContent";
-                        else
-                            className = "mixedDisplayContent";
-                        tooltip = gNavigatorBundle.getString("identity.unknown.tooltip");
-                    }
-                    node.className = className;
+                var tooltip = conn_icon.tooltipText;
+                if (tooltip)
                     node.setAttribute("tooltiptext", tooltip);
-                }
+                else
+                    node.removeAttribute("tooltiptext");
             }, {
                 openPopup: function (anchor) {
                     var handler = window.gIdentityHandler;

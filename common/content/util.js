@@ -426,8 +426,7 @@ const Util = Module("util", {
             null
         );
 
-        if (services.get("vc").compare(VERSION, "33") >= 0
-            && Cu.isXrayWrapper(result)) {
+        if (Cu.isXrayWrapper(result)) {
             let xr = result;
 
             if (asIterator) {

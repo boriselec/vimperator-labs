@@ -1,3 +1,5 @@
+fork: lifesupport for palemoon
+
 Vimperator-labs
 ===============
 
