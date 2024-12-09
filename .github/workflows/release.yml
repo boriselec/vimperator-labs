@@ -23,6 +23,12 @@ jobs:
       - name: Run Makefile release target
         run: make xpi
 
+      - name: Upload xpi as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: xpi-file
+          path: downloads/vimperator-*.xpi
+
       - name: Create or Update GitHub Release
         uses: actions/create-release@v1
         env:
@@ -34,3 +40,13 @@ jobs:
             Automated release for commit ${{ github.sha }}.
           draft: false
           prerelease: false
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: downloads/vimperator-${{ env.version }}.xpi
+          asset_name: vimperator-${{ env.version }}.xpi
+          asset_content_type: application/x-xpinstall
