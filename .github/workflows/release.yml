@@ -24,10 +24,12 @@ jobs:
         run: make xpi
 
       - name: Upload xpi as an artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: xpi-file
+          name: xpi-file-${{ github.sha }}
           path: downloads/vimperator-*.xpi
+          # Optional: include-hidden-files or overwrite usage
+          # Example: include-hidden-files: true or overwrite: true if needed
 
       - name: Create or Update GitHub Release
         id: create_release
