@@ -1,6 +1,6 @@
 #### configuration
 
-VERSION        = 3.16.1
+VERSION        = 3.16.2
 NAME           = vimperator
 UUID           = vimperator@boriselec.com
 MIN_VERSION    = 28.0
